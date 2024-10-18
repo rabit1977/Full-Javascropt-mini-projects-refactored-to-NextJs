@@ -21,12 +21,12 @@ const ToggleSwitch = ({ isModal, toggleForm }: ToggleSwitchProps) => {
       <div
         className={`toggle ${
           isModal ? 'bg-blue-500' : 'bg-gray-400'
-        } w-12 h-6 rounded-full relative cursor-pointer`}
+        } w-12  h-6 rounded-full relative cursor-pointer`}
         onClick={toggleForm}
       >
         <div
-          className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-transform ${
-            isModal ? 'translate-x-7' : 'translate-x-0.5'
+          className={`absolute size-5 bg-white rounded-full top-0.5 transition-transform ${
+            isModal ? 'translate-x-[26px]' : 'translate-x-0.5'
           }`}
         ></div>
       </div>
