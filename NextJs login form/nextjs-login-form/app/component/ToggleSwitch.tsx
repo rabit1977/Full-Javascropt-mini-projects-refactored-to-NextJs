@@ -19,7 +19,7 @@ const ToggleSwitch = ({ isModal, toggleForm }: ToggleSwitchProps) => {
         onChange={toggleForm}
       />
       <div
-        className={`toggle ${
+        className={`${
           isModal ? 'bg-blue-500' : 'bg-gray-400'
         } w-12  h-6 rounded-full relative cursor-pointer`}
         onClick={toggleForm}

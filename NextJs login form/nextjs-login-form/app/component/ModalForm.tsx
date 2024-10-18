@@ -23,7 +23,7 @@ const ModalForm = ({
     >
       <div className='bg-white p-8 rounded shadow-md relative w-1/2 h-1/2'>
         <span
-          className='absolute top-2 right-10 text-3xl hover:text-red-700 cursor-pointer'
+          className='absolute top-2 right-8 text-3xl hover:text-red-700 cursor-pointer'
           onClick={closeModal}
         >
           &times;

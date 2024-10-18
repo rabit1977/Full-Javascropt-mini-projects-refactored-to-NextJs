@@ -5,10 +5,10 @@ const LoginForm = () => {
     <form>
       <div className='mb-4'>
         <label htmlFor='uname' className='block mb-2 font-semibold'>
-          Username
+          Email
         </label>
         <input
-          type='text'
+          type='email'
           id='uname'
           placeholder='Enter Username'
           className='w-full p-2 border rounded'

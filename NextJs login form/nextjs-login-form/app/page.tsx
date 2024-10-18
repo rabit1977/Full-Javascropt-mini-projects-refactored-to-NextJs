@@ -11,18 +11,14 @@ const Home = () => {
 
   const toggleForm = () => {
     setIsModal(!isModal);
-    setIsModalVisible(false); // Close modal if toggling to non-modal form
   };
 
   const openModal = () => {
-    if (isModal) {
       setIsModalVisible(true);
-    }
   };
 
   const closeModal = () => {
     setIsModalVisible(false);
-    setIsModal(true);
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -41,7 +37,7 @@ const Home = () => {
       {/* Login Button */}
       {isModal && (
         <button
-          className='bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mx-auto block w-48'
+          className='bg-blue-500 text-white text-lg py-2 px-4 rounded hover:bg-blue-600 mx-auto block w-48'
           onClick={openModal}
         >
           Login
