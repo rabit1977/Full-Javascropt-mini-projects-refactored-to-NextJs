@@ -23,17 +23,29 @@
         background-color: #ccc;
       }
 
+      .accordion:after {
+        content: '\002B';
+        color: #777;
+        font-weight: bold;
+        float: right;
+        margin-left: 5px;
+      }
+
+      .active:after {
+        content: '\2212';
+      }
+
       .panel {
         padding: 0 18px;
-        display: none;
-        margin-left: 1rem;
         background-color: white;
+        max-height: 0;
         overflow: hidden;
+        transition: max-height 0.2s ease-out;
       }
     </style>
   </head>
   <body>
-    <h2>Accordion</h2>
+    <h2>Accordion with symbols</h2>
 
     <button class="accordion">Section 1</button>
     <div class="panel">
@@ -72,24 +84,30 @@
         accordion.addEventListener('click', () => {
           accordion.classList.toggle('active');
           const panel = accordion.nextElementSibling;
+          if (panel.style.maxHeight) {
+            panel.style.maxHeight = null;
+          } else {
+            panel.style.maxHeight = panel.scrollHeight + 'px';
+          }
           panel.style.display =
-            panel.style.display === 'block' ? 'none' : 'block';
+            panel.style.display === 'block max-h-96' ? 'none max-h-0' : 'block';
         });
       });
 
-      // with for loop example
-      // let i;
-      //   for (i = 0; i < acc.length; i++) {
-      //     acc[i].addEventListener('click', function () {
-      //       this.classList.toggle('active');
-      //       const panel = this.nextElementSibling;
-      //       if (panel.style.display === 'block') {
-      //         panel.style.display = 'none';
-      //       } else {
-      //         panel.style.display = 'block';
-      //       }
-      //     });
-      //   }
+      //    var acc = document.getElementsByClassName("accordion");
+      // var i;
+
+      // for (i = 0; i < acc.length; i++) {
+      //   acc[i].addEventListener("click", function() {
+      //     this.classList.toggle("active");
+      //     var panel = this.nextElementSibling;
+      //     if (panel.style.maxHeight) {
+      //       panel.style.maxHeight = null;
+      //     } else {
+      //       panel.style.maxHeight = panel.scrollHeight + "px";
+      //     }
+      //   });
+      // }
     </script>
   </body>
 </html>
