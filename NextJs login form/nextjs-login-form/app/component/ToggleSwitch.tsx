@@ -9,7 +9,7 @@ const ToggleSwitch = ({ isModal, toggleForm }: ToggleSwitchProps) => {
   return (
     <div className='flex items-center justify-center mt-6 mb-4'>
       <label htmlFor='modalToggle' className='font-semibold mr-2 text-2xl'>
-        Use Modal:
+        {isModal ? 'Modal' : 'Not Modal'}
       </label>
       <input
         type='checkbox'
