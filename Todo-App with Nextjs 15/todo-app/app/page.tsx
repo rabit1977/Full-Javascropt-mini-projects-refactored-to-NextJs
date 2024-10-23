@@ -1,140 +1,83 @@
+// Home.js
 'use client';
 
-import { format, formatDistanceToNow } from 'date-fns';
-import {
-  ChangeEvent,
-  startTransition,
-  useEffect,
-  useOptimistic,
-  useRef,
-  useState,
-} from 'react';
-import styles from './styles/Home.module.css';
-
-type Task = {
-  text: string;
-  createdAt: number;
-};
+import { startTransition, useEffect } from 'react';
+import TaskItem from './components/task-item';
+import { useTasks } from './hooks/useTasks';
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [task, setTask] = useState<string>('');
-  const [selectedTask, setSelectedTask] = useState<number | null>(null);
-  const [notification, setNotification] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const {
+    tasks,
+    optimisticTasks,
+    addTask,
+    deleteTask,
+    editTask,
+    task,
+    inputRef,
+    setTask,
+    selectedTask,
+    notification,
+    showNotification,
+    handleInputChange,
+    setSelectedTask,
+  } = useTasks();
 
-  // Fetch tasks from local storage when the component mounts
+  // useEffect to focus input when selectedTask changes
   useEffect(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
+    if (selectedTask !== null && inputRef.current) {
+      inputRef.current.focus();
     }
-  }, []);
-
-  // Save tasks to local storage whenever tasks state changes
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
-
-  // Define the optimistic state using useOptimistic
-  const [optimisticTasks, setOptimisticTasks] = useOptimistic(tasks);
-
-  const addTask = () => {
+  }, [selectedTask, inputRef]); // Dependency array
+  const addOrUpdateTask = () => {
     if (!task.trim()) return;
-    const newTask = { text: task, createdAt: Date.now() };
     startTransition(() => {
       if (selectedTask !== null) {
-        const updatedTasks = tasks.map((t, index) =>
-          index === selectedTask ? newTask : t
-        );
-        setOptimisticTasks(updatedTasks); // Optimistically update tasks
-        setTasks(updatedTasks);
-        setSelectedTask(null);
+        editTask(selectedTask, { text: task, createdAt: Date.now() });
         showNotification('Task updated successfully!');
+        setSelectedTask(null);
       } else {
-        const newTasks = [...tasks, newTask];
-        setOptimisticTasks(newTasks); // Optimistically update tasks
-        setTasks(newTasks);
+        addTask(task);
         showNotification('Task added successfully!');
       }
     });
-    setTask('');
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  const deleteTask = (index: number) => {
-    startTransition(() => {
-      const newTasks = tasks.filter((_, i) => i !== index);
-      setOptimisticTasks(newTasks); // Optimistically update tasks
-      setTasks(newTasks);
-      showNotification('Task deleted successfully!');
-    });
-  };
-
-  const editTask = (index: number) => {
-    setTask(tasks[index].text);
-    setSelectedTask(index);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  const showNotification = (message: string) => {
-    setNotification(message);
-    setTimeout(() => setNotification(null), 3000); // Hide notification after 3 seconds
-  };
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTask(e.target.value);
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.box}>
-        <h1 className={styles.title}>Next.js ToDo App</h1>
+    <div className='flex flex-col items-center justify-center min-h-screen bg-blue-100'>
+      <div className='bg-white p-6 rounded-lg shadow-md max-w-md w-full text-center'>
+        <h1 className='text-green-500 text-2xl mb-4'>Next.js ToDo App</h1>
         {notification && (
-          <div className={styles.notification}>{notification}</div>
+          <div className='bg-green-500 text-white p-2 rounded-md mb-2'>
+            {notification}
+          </div>
         )}
         <p>Total tasks: {tasks.length}</p>
         <input
           type='text'
-          className={styles.inputField}
+          className='border border-green-500 rounded-md p-2 mr-2 mb-2 w-4/5'
           value={task}
           onChange={handleInputChange}
           ref={inputRef}
         />
         <button
-          className={styles.addButton}
-          onClick={addTask}
+          className='bg-blue-500 text-white px-4 py-2 rounded-md disabled:bg-gray-300 disabled:cursor-not-allowed'
+          onClick={addOrUpdateTask}
           disabled={!task.trim()}
         >
           {selectedTask !== null ? 'Update Task' : 'Add Task'}
         </button>
-        <ul className={styles.ulList}>
+        <ul className='list-none p-0'>
           {optimisticTasks.map((task, index) => (
-            <li key={index} className={styles.listItem}>
-              <div className={styles.DateTime}>
-                <span>{task.text}</span>
-                <small>{format(task.createdAt, 'dd.MM.yyyy')}</small>
-                <small>{formatDistanceToNow(task.createdAt)} ago</small>
-              </div>
-              <div>
-                <button
-                  className={styles.editDeleteButton}
-                  onClick={() => editTask(index)}
-                >
-                  Edit
-                </button>
-                <button
-                  className={styles.deleteButton}
-                  onClick={() => deleteTask(index)}
-                >
-                  X
-                </button>
-              </div>
-            </li>
+            <TaskItem
+              key={index}
+              task={task}
+              index={index}
+              editTask={(index) => {
+                setSelectedTask(index);
+                setTask(optimisticTasks[index].text);
+              }}
+              deleteTask={deleteTask}
+            />
           ))}
         </ul>
       </div>
