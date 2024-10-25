@@ -1,0 +1,110 @@
+:root {
+  --background-color: #f0f8ff;
+  --primary-color: #4caf50;
+  --button-color: #008cba;
+  --box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px;
+  --notification-bg: #4caf50;
+  --notification-color: #fff;
+  --delete-button-color: #ff0000;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--background-color);
+}
+
+.box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.title {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+.notification {
+  background-color: var(--notification-bg);
+  color: var(--notification-color);
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  transition: opacity 0.3s ease;
+}
+
+.inputField {
+  padding: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  width: 80%;
+  border: 1px solid var(--primary-color);
+  border-radius: 5px;
+}
+
+.addButton {
+  padding: 10px;
+  margin-left: 5px;
+  margin-bottom: 10px;
+  background-color: var(--button-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.addButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.ulList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.listItem {
+  background: #f4f4f4;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.editDeleteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--primary-color);
+  padding: 5px;
+  margin-left: 5px;
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--delete-button-color);
+  padding: 5px;
+  margin-left: 5px;
+  font-size: 1.1em;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.DateTime {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
