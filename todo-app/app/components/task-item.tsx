@@ -14,7 +14,7 @@ const TaskItem = ({ task, index, editTask, deleteTask }: TaskItemProps) => {
     task.title.length > 30 ? `${task.title.substring(0, 30)}...` : task.title;
 
   return (
-    <li className='bg-white border border-gray-200 hover:shadow-md transition duration-200 ease-in-out my-2 p-4 rounded-md flex justify-between items-center cursor-pointer'>
+    <li className='bg-white border border-gray-200 hover:shadow-md transition duration-200 ease-in-out p-4 rounded-md flex justify-between items-center cursor-pointer py-2 mb-3 mr-2'>
       <div className='flex items-center gap-3'>
         <input
           type='checkbox'
