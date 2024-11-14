@@ -1,15 +1,21 @@
-// TaskItem.js
+// TaskItem.tsx
 import { format, formatDistanceToNow } from 'date-fns';
-import { Task } from '../hooks/useTasks';
+import React from 'react';
+import { Task } from '../types';
 
 type TaskItemProps = {
   task: Task;
-  index: number;
-  editTask: (index: number) => void;
-  deleteTask: (index: number) => void;
+  index: number; // Make sure index is declared as a required prop
+  editTask: (taskId: number) => void;
+  deleteTask: (index: number) => Promise<void>;
 };
 
-const TaskItem = ({ task, index, editTask, deleteTask }: TaskItemProps) => {
+const TaskItem: React.FC<TaskItemProps> = ({
+  task,
+  index,
+  editTask,
+  deleteTask,
+}) => {
   const truncatedTitle =
     task.title.length > 30 ? `${task.title.substring(0, 30)}...` : task.title;
 

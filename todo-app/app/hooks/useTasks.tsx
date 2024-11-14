@@ -1,54 +1,52 @@
-// useTasks.js
-import {
-  ChangeEvent,
-  startTransition,
-  useEffect,
-  useOptimistic,
-  useRef,
-  useState,
-} from 'react';
-import { v4 as uuidv4 } from 'uuid';
-
-export type Task = {
-  id: string;
-  title: string;
-  description?: string;
-  completed: boolean;
-  dueDate?: Date;
-  priority?: 'low' | 'medium' | 'high';
-  createdAt: number;
-};
+// app/hooks/useTasks.tsx
+import { useState, useEffect, ChangeEvent, useRef } from 'react';
+import { Task } from '../types';
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [optimisticTasks, setOptimisticTasks] = useOptimistic(tasks);
+  const [optimisticTasks, setOptimisticTasks] = useState<Task[]>([]);
   const [task, setTask] = useState<string>('');
   const [selectedTask, setSelectedTask] = useState<number | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
   const [filterOptions, setFilterOptions] = useState({
     priority: 'all',
     completed: 'all',
   });
-  const [sortOption, setSortOption] = useState<
-    'dueDate' | 'priority' | 'createdAt'
-  >('dueDate');
+
+  const [sortOption, setSortOption] = useState<'dueDate' | 'priority' | 'createdAt'>('dueDate');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
-    }
+    fetchTasks();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch('/api/tasks', {
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any authorization headers if needed (e.g., 'Authorization': 'Bearer <token>')
+        },
+        cache: 'no-store',
+      });
 
-  const addTask = (taskText: string) => {
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Network response was not ok: ${response.status} - ${errorText}`);
+      }
+
+      const data: Task[] = await response.json();
+      setTasks(data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  const addTask = async (taskText: string) => {
     const newTask: Task = {
-      id: uuidv4(),
+      id: '',
       title: taskText,
       description: '',
       completed: false,
@@ -56,12 +54,25 @@ export function useTasks() {
       priority: 'medium',
       createdAt: Date.now(),
     };
-    const newTasks = [newTask, ...tasks];
-    startTransition(() => {
-      setOptimisticTasks(newTasks);
-      setTasks(newTasks);
-      showNotification('Task added successfully!');
-    });
+
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newTask),
+      });
+
+      if (response.ok) {
+        const createdTask: Task = await response.json();
+        setTasks((prevTasks) => [createdTask, ...prevTasks]);
+        setOptimisticTasks((prevTasks) => [createdTask, ...prevTasks]);
+        showNotification('Task added successfully!');
+      }
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
 
     setTask('');
     setSelectedTask(null);
@@ -70,33 +81,52 @@ export function useTasks() {
     }
   };
 
-  const deleteTask = (index: number) => {
-    startTransition(() => {
-      const newTasks = tasks.filter((_, i) => i !== index);
-      setOptimisticTasks(newTasks);
-      setTasks(newTasks);
-      showNotification('Task deleted successfully!');
-    });
+  const deleteTask = async (index: number) => {
+    const taskToDelete = tasks[index];
+    try {
+      const response = await fetch(`/api/tasks/${taskToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        const newTasks = tasks.filter((_, i) => i !== index);
+        setTasks(newTasks);
+        setOptimisticTasks(newTasks);
+        showNotification('Task deleted successfully!');
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   };
 
-  const editTask = (index: number, updatedTask: Task) => {
-    startTransition(() => {
-      const newTasks = tasks.map((task, i) =>
-        i === index ? updatedTask : task
-      );
-      setOptimisticTasks(newTasks);
-      setTasks(newTasks);
-      showNotification('Task updated successfully!');
-    });
+  const editTask = async (index: number, updatedTask: Task) => {
+    try {
+      const response = await fetch(`/api/tasks/${updatedTask.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedTask),
+      });
+
+      if (response.ok) {
+        const updatedTaskFromDb: Task = await response.json();
+        const updatedTasks = tasks.map((task, i) =>
+          i === index ? updatedTaskFromDb : task
+        );
+        setTasks(updatedTasks);
+        setOptimisticTasks(updatedTasks);
+        showNotification('Task updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+
     setTask('');
     setSelectedTask(null);
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  };
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTask(e.target.value);
   };
 
   const showNotification = (message: string) => {
@@ -111,11 +141,7 @@ export function useTasks() {
 
   const sortTasks = (a: Task, b: Task) => {
     if (sortOption === 'dueDate') {
-      // Handle undefined due dates
-      return (
-        (a.dueDate || new Date()).getTime() -
-        (b.dueDate || new Date()).getTime()
-      );
+      return (a.dueDate || new Date()).getTime() - (b.dueDate || new Date()).getTime();
     } else if (sortOption === 'priority') {
       const priorityOrder = { low: 3, medium: 2, high: 1 };
       return priorityOrder[a.priority!] - priorityOrder[b.priority!];
@@ -143,7 +169,7 @@ export function useTasks() {
     setTask,
     selectedTask,
     setSelectedTask,
-    handleInputChange,
+    handleInputChange: (e: ChangeEvent<HTMLInputElement>) => setTask(e.target.value),
     notification,
     showNotification,
     filterTasks,
